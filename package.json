@@ -1,0 +1,31 @@
+{
+  "name": "stk-smart-contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bignumber.js": "^2.0.7",
+    "ethereumjs-util": "^5.2.0",
+    "solidity-sha3": "^0.4.1",
+    "truffle-hdwallet-provider": "0.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/STACK-Fintech/STK-smart-contracts.git"
+  },
+  "keywords": [
+    "STK"
+  ],
+  "author": "info@Sstktoken.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/STACK-Fintech/STK-smart-contracts/issues"
+  },
+  "homepage": "https://github.com/STACK-Fintech/STK-smart-contracts#readme"
+}
