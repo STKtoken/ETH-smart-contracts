@@ -107,6 +107,7 @@ contract STKChannel
         return address(this).balance; 
     }
 
+    //Fallback function for user to send funds 
     function() public payable 
     {
     }
