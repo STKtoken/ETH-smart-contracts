@@ -1,9 +1,6 @@
 pragma solidity ^0.4.23;
 
-
 import "./STKChannelLibrary.sol";
-
-
 /**
 Payment Channel between two parties that allows multiple deposits.
 Once closed, there is a contest period which allows state updates.
@@ -11,7 +8,6 @@ Once closed, there is a contest period which allows state updates.
 contract STKChannel
 {
     using STKChannelLibrary for STKChannelLibrary.STKChannelData;
-
     /**
      * Storage variables
      */
@@ -26,31 +22,26 @@ contract STKChannel
      * @dev Contract constructor
      * @param _from The user address in the contract.
      * @param _addressOfSigner The signer address in the contract.
-     * @param _addressOfToken The address when the ERC20 token is deployed.
      * @param _expiryNumberOfBlocks The time in blocks of waiting after channel closing after which it can be settled.
      */
     constructor (
         address _from,
         address _addressOfSigner,
-        address _addressOfToken,
         uint _expiryNumberOfBlocks)
         public
     {
-
         channelData_.userAddress_ = _from;
         channelData_.signerAddress_ = _addressOfSigner;
         channelData_.recipientAddress_ = msg.sender;
         channelData_.timeout_ = _expiryNumberOfBlocks;
-        channelData_.token_ = STKToken(_addressOfToken);
         channelData_.openedBlock_ = block.number;
-
         emit LogChannelOpened(channelData_.userAddress_, channelData_.recipientAddress_, channelData_.openedBlock_);
     }
 
     /**
     * @notice Function to close the payment channel.
     * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
-    * @param _amount The amount of tokens claimed to be due to the receiver.
+    * @param _amount The amount of wei claimed to be due to the receiver.
     * @param _v Cryptographic param v derived from the signature.
     * @param _r Cryptographic param r derived from the signature.
     * @param _s Cryptographic param s derived from the signature.
@@ -74,13 +65,13 @@ contract STKChannel
         external
     {
         channelData_.closeWithoutSignature();
-        emit LogChannelClosed(block.number, msg.sender, channelData_.amountOwed_);
+        emit LogChannelClosed(block.number, msg.sender, channelData_.owingRecipient);
     }
 
     /**
     * @notice Function to contest the closing state of the payment channel. Will be able to be called for a time period (in blocks) given by timeout after closing of the channel.
     * @param _nonce The nonce of the deposit. Used for avoiding replay attacks.
-    * @param _amount The amount of tokens claimed to be due to the receiver.
+    * @param _amount The amount of wei claimed to be due to the receiver.
     * @param _v Cryptographic param v derived from the signature.
     * @param _r Cryptographic param r derived from the signature.
     * @param _s Cryptographic param s derived from the signature.
@@ -100,9 +91,24 @@ contract STKChannel
     /**
     * @notice After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.
     */
-    function settle(bool _returnToken)
+    function settle(bool _returnBalance)
         external
     {
-        channelData_.settle(address(this), _returnToken);
+        channelData_.settle(address(this), _returnBalance);
     }
+
+    function deposit(uint256 amountToDeposit) public payable 
+    { 
+        // require(amountToDeposit > 0 ); 
+    }
+
+    function getBalance () public view returns (uint balance)  
+    { 
+        return address(this).balance; 
+    }
+
+    function() public payable 
+    {
+    }
+
 }
