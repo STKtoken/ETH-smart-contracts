@@ -8,6 +8,10 @@ module.exports = {
 
       const hashBuffer = ethUtil.toBuffer(hash);
       const prefixedHash = addPrefix(hashBuffer);
+
+      var pkAddress = ethUtil.privateToAddress(signersPk);
+      pkAddress = "0x" + pkAddress.toString('hex');
+    
       const signature = ethUtil.ecsign(prefixedHash, signersPk);
       var serialized = ethUtil.bufferToHex(concatSig(signature.v, signature.r, signature.s));
       const signatureData = ethUtil.fromRpcSig(serialized);
