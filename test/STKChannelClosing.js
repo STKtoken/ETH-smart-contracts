@@ -241,6 +241,129 @@ contract("STKChannelClosing", accounts =>
         }
     })        
     
+<<<<<<< Updated upstream:test/STKChannelClosing.js
+=======
+    it('Should transfer funds to user once channel has settled',async()=>
+    {
+        var gasUsed = 0; 
+        const channel = await STKChannel.deployed();
+        const data  = await channel.channelData_.call();
+        const blocksToWait = data[indexes.TIMEOUT];
+        const returnBalance = true;
+        console.log('waiting for '+ blocksToWait.valueOf() + ' blocks');
+        
+        for(i = 0;i<blocksToWait;i++)
+        {
+            var transaction = {from:web3.eth.accounts[5],to:web3.eth.accounts[6],gasPrice:100000000,value:web3.toWei(0.5, "ether")};
+            web3.eth.sendTransaction(transaction);
+        }
+        const channelDeposit = await web3.eth.getBalance(channel.address);
+        const oldStackBalance = await web3.eth.getBalance(stackAddress);
+        const oldUserBalance = await web3.eth.getBalance(userAddress);
+        const amountToBeTransferred = data[indexes.AMOUNT_OWED];
+        const cost = await channel.settle.estimateGas(returnBalance);
+        console.log('estimated gas cost of settling the channel: ' + cost );
+        
+        var settleHash = await channel.settle(true, {from: stackAddress, gasPrice: 1000000});
+        var gasUsed = settleHash['receipt']['cumulativeGasUsed']; 
+        
+        const newUserBalance = await web3.eth.getBalance(userAddress);
+        const newStackBalance = await web3.eth.getBalance(stackAddress);
+        
+        const expectedStackBal = parseInt(oldStackBalance.valueOf()) + parseInt(amountToBeTransferred.valueOf() - 1000000*gasUsed); 
+
+        web3.eth.getBalance(stackAddress, function (error, result) {
+            if (error) {
+                assert.equal(false, true, "test failed to get updated amount in stack address"); 
+                assertRevert(error); 
+            } else {
+                assert.equal(parseInt(result.valueOf()), parseInt(expectedStackBal.valueOf()), 'The stack account value should be credited');                        
+                
+            }
+        })                
+                
+        const expectedUserBal = parseInt(oldUserBalance.valueOf()) + parseInt(channelDeposit.valueOf()) - parseInt(amountToBeTransferred.valueOf());       
+        
+        assert.equal(parseInt(newUserBalance.valueOf()),parseInt(expectedUserBal.valueOf()),'The User address should get back the unused eth');
+    })
+    
+    it('Should be able to reset the state of the channel after settling',async()=>
+    {
+        const channel = await STKChannel.deployed();
+        const data  = await channel.channelData_.call();
+        
+        const closingAddress = data[indexes.CLOSING_ADDRESS];
+        const amountOwed = data[indexes.AMOUNT_OWED];
+        const openedBlock = data[indexes.OPENED_BLOCK];
+        const closedBlock = data[indexes.CLOSED_BLOCK];
+        const closedNounce = data[indexes.CLOSED_NONCE];
+        
+        const currentBlockNumber = web3.eth.blockNumber;
+        
+        assert.equal(closingAddress.toString(),'0x0000000000000000000000000000000000000000','closing address are not equal');
+        assert.equal(amountOwed.valueOf(),0,'The amount owned should be zero')
+        assert.equal(openedBlock.valueOf(),currentBlockNumber,'opened block are not equal');
+        assert.equal(closedBlock.valueOf(),0,'The closed block should be zero')
+        assert.equal(closedNounce.valueOf(),0,'The closed nounce should be zero')
+        
+    })
+    
+    it('Should be able to have ETH remain in the channel after settling',async()=>
+    {
+        const channel = await STKChannel.deployed();
+        
+        transaction = {from: userAddress, to: channel.address, value: web3.toWei(0.2, "ether")}
+        web3.eth.sendTransaction(transaction); 
+        
+        const balance = await web3.eth.getBalance(channel.address);
+        
+        const nonce = 5;
+        const amount = parseInt(web3.toWei(0.1, "ether"));
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
+        const cost = await  channel.close.estimateGas(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
+        await channel.close(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
+        const data  = await channel.channelData_.call();
+        
+        const blocksToWait = data[indexes.TIMEOUT];
+        const returnBalance = false;
+        console.log('waiting for '+ blocksToWait.valueOf() + ' blocks');
+        
+        for(i = 0;i<blocksToWait;i++)
+        {
+            var transaction = {from:web3.eth.accounts[5],to:web3.eth.accounts[6],gasPrice:1000000000,value: web3.toWei(0.1, "ether")};
+            web3.eth.sendTransaction(transaction);
+        }
+        
+        const channelDeposit = await web3.eth.getBalance(channel.address);
+        const oldUserBalance = await web3.eth.getBalance(userAddress);
+        const oldStackBalance = await web3.eth.getBalance(stackAddress);
+        const oldChannelBalance = await web3.eth.getBalance(channel.address);
+        const amountToBeTransferred = data[indexes.AMOUNT_OWED];
+
+        var settleHash = await channel.settle(returnBalance, {from: stackAddress, gasPrice: 1000000});
+        var gasUsed = settleHash['receipt']['cumulativeGasUsed']; 
+
+        const newUserBalance = await web3.eth.getBalance(userAddress);
+        const newChannelBalance = await web3.eth.getBalance(channel.address);
+
+        web3.eth.getBalance(stackAddress, function (error, result) {
+            if (error) {
+                assert.equal(false, true, "test should have been able to get updated amount in stack address"); 
+                assertRevert(error); 
+            } else {
+                var expectedStackBal = parseInt(oldStackBalance.valueOf()) + parseInt(amountToBeTransferred.valueOf()) - (1000000*gasUsed); 
+                console.log(result); 
+                console.log(expectedStackBal); 
+                assert.equal(parseInt(result.valueOf()), expectedStackBal, 'The stack account value should be credited');
+            }
+        })            
+                
+        assert.equal(parseInt(newChannelBalance.valueOf()),parseInt(oldChannelBalance.valueOf()) - parseInt(amountToBeTransferred.valueOf()), 'Unspent eth should remain in the channel account');
+        
+        assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()), 'The User address account value should remain the same');
+    })    
+    
+>>>>>>> Stashed changes:test/STKChannelClosing.js
 })
 
 

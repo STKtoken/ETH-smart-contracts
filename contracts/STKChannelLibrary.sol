@@ -19,7 +19,7 @@ library STKChannelLibrary
         uint closedNonce_;
     }
 
-    event LogChannelSettled(uint blockNumber, uint256 finalBalance, address user);
+    event LogChannelSettled(uint blockNumber, address user);
     event CloseTest(address addr);
 
     modifier isSufficientBalance(uint256 amount, address channelAddress)
@@ -158,7 +158,7 @@ library STKChannelLibrary
             address(data.userAddress_).transfer(returnToUserAmount);
         }
 
-        emit LogChannelSettled(block.number, owedAmount, data.userAddress_);
+        emit LogChannelSettled(block.number, data.userAddress_);
     }
 
     /**
