@@ -241,8 +241,6 @@ contract("STKChannelClosing", accounts =>
         }
     })        
     
-<<<<<<< Updated upstream:test/STKChannelClosing.js
-=======
     it('Should transfer funds to user once channel has settled',async()=>
     {
         var gasUsed = 0; 
@@ -363,7 +361,6 @@ contract("STKChannelClosing", accounts =>
         assert.equal(parseInt(newUserBalance.valueOf()),parseInt(oldUserBalance.valueOf()), 'The User address account value should remain the same');
     })    
     
->>>>>>> Stashed changes:test/STKChannelClosing.js
 })
 
 
