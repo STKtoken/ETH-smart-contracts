@@ -13,16 +13,16 @@ library STKChannelLibrary
         address recipientAddress_;
         address closingAddress_;
         uint timeout_;
-        uint owingRecipient;
+        uint256 owingRecipient;
         uint openedBlock_;
         uint closedBlock_;
         uint closedNonce_;
     }
 
-    event LogChannelSettled(uint blockNumber, uint finalBalance);
+    event LogChannelSettled(uint blockNumber, address user);
     event CloseTest(address addr);
 
-    modifier isSufficientBalance(uint amount, address channelAddress)
+    modifier isSufficientBalance(uint256 amount, address channelAddress)
     {
         require(amount <= address(channelAddress).balance);
         _;
@@ -66,7 +66,7 @@ library STKChannelLibrary
         STKChannelData storage data,
         address _channelAddress,
         uint _nonce,
-        uint _amount,
+        uint256 _amount,
         uint8 _v,
         bytes32 _r,
         bytes32 _s)
@@ -110,7 +110,7 @@ library STKChannelLibrary
         STKChannelData storage data,
         address _channelAddress,
         uint _nonce,
-        uint _amount,
+        uint256 _amount,
         uint8 _v,
         bytes32 _r,
         bytes32 _s)
@@ -139,8 +139,8 @@ library STKChannelLibrary
         callerIsChannelParticipant(data)
         isSufficientBalance(data.owingRecipient, _channelAddress)
     {
-        uint returnToUserAmount = address(_channelAddress).balance.minus(data.owingRecipient);
-        uint owedAmount = data.owingRecipient;
+        uint256 returnToUserAmount = address(_channelAddress).balance.minus(data.owingRecipient);
+        uint256 owedAmount = data.owingRecipient;
         data.owingRecipient = 0;
 
         data.closingAddress_ = 0x0000000000000000000000000000000000000000;
@@ -158,7 +158,7 @@ library STKChannelLibrary
             address(data.userAddress_).transfer(returnToUserAmount);
         }
 
-        emit LogChannelSettled(block.number,owedAmount);
+        emit LogChannelSettled(block.number, data.userAddress_);
     }
 
     /**
@@ -169,7 +169,7 @@ library STKChannelLibrary
     * @param s Cryptographic param r derived from the signature.
     * @param v Cryptographic param s derived from the signature.
     */
-    function recoverAddressFromHashAndParameters(uint _nonce,uint _amount,bytes32 r,bytes32 s,uint8 v)
+    function recoverAddressFromHashAndParameters(uint _nonce, uint256 _amount,bytes32 r,bytes32 s,uint8 v)
         internal view
         returns (address)
     {

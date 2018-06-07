@@ -1,5 +1,5 @@
 {
-  "name": "stk-smart-contracts",
+  "name": "eth-smart-contracts",
   "version": "1.0.0",
   "description": "",
   "main": "truffle.js",
@@ -10,7 +10,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "bignumber.js": "^2.0.7",
     "ethereumjs-util": "^5.2.0",
     "solidity-sha3": "^0.4.1",
     "truffle-hdwallet-provider": "0.0.3"

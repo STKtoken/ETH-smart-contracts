@@ -14,10 +14,9 @@ contract STKChannel
     STKChannelLibrary.STKChannelData public channelData_;
 
     event LogChannelOpened(address from, address to, uint blockNumber);
-    event LogChannelClosed(uint blockNumber, address closer, uint amount);
-    event LogDeposited(address depositingAddress, uint amount);
-    event LogChannelContested(uint amount, address caller);
-
+    event LogChannelClosed(uint blockNumber, address closer, uint256 amount);
+    event LogDeposited(address depositingAddress, uint256 amount);
+    event LogChannelContested(uint256 amount, address caller);
     /**
      * @dev Contract constructor
      * @param _from The user address in the contract.
@@ -48,7 +47,7 @@ contract STKChannel
     */
     function close(
         uint _nonce,
-        uint _amount,
+        uint256 _amount,
         uint8 _v,
         bytes32 _r,
         bytes32 _s)
@@ -99,7 +98,7 @@ contract STKChannel
 
     function deposit(uint256 amountToDeposit) public payable 
     { 
-        // require(amountToDeposit > 0 ); 
+        require(amountToDeposit > 0 ); 
     }
 
     function getBalance () public view returns (uint balance)  
