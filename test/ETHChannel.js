@@ -1,16 +1,16 @@
-var STKChannel = artifacts.require('./STKChannel.sol');
+var ETHChannel = artifacts.require('./ETHChannel.sol');
 const assertRevert = require('./helpers/assertRevert');
 var indexes = require('./helpers/ChannelDataIndexes');
-contract("STKChannel",(accounts,done)=>
+contract("ETHChannel",(accounts,done)=>
 {
     it("STK Channel is deployed ", function()
     {
-        return STKChannel.deployed().then(done).catch(done);
+        return ETHChannel.deployed().then(done).catch(done);
     });
     
     it("Should have STK channel user account as the first account",async() =>
     {
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         const data  = await channel.channelData_.call();
         const address = data[indexes.USER_ADDRESS];
         
@@ -19,7 +19,7 @@ contract("STKChannel",(accounts,done)=>
     
     it('Should have second account as Recipient account',async() =>
     {
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         const data  = await channel.channelData_.call();
         const address  = data[indexes.RECIPIENT_ADDRESS];
         
@@ -28,7 +28,7 @@ contract("STKChannel",(accounts,done)=>
     
     it('Should have Channel expiry time as 10',async() =>
     {
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         const data  = await channel.channelData_.call();
         const timeout = data[indexes.TIMEOUT];
         
@@ -37,7 +37,7 @@ contract("STKChannel",(accounts,done)=>
     
     it('Should Deposit 3 eth to the eth-channel',async() =>
     {
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         const data  = await channel.channelData_.call();
         
         
@@ -51,7 +51,7 @@ contract("STKChannel",(accounts,done)=>
     
     it('Should close the channel without a signature',async () =>
     {
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         await channel.closeWithoutSignature();
         const data = await channel.channelData_.call();
         const block = data[indexes.CLOSED_BLOCK];

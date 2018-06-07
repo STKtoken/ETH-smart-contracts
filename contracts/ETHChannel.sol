@@ -1,17 +1,17 @@
 pragma solidity ^0.4.23;
 
-import "./STKChannelLibrary.sol";
+import "./ETHChannelLibrary.sol";
 /**
 Payment Channel between two parties that allows multiple deposits.
 Once closed, there is a contest period which allows state updates.
 */
-contract STKChannel
+contract ETHChannel
 {
-    using STKChannelLibrary for STKChannelLibrary.STKChannelData;
+    using ETHChannelLibrary for ETHChannelLibrary.ETHChannelData;
     /**
      * Storage variables
      */
-    STKChannelLibrary.STKChannelData public channelData_;
+    ETHChannelLibrary.ETHChannelData public channelData_;
 
     event LogChannelOpened(address from, address to, uint blockNumber);
     event LogChannelClosed(uint blockNumber, address closer, uint256 amount);
