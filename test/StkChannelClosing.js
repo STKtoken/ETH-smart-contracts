@@ -1,5 +1,4 @@
 const STKChannel = artifacts.require('./STKChannel.sol');
-const Web3 = require('web3'); 
 const ethUtil = require('ethereumjs-util');
 const assertRevert = require('./helpers/assertRevert');
 const zeppelin = require("./helpers/zeppelin")
@@ -8,12 +7,6 @@ const closingHelper = require('./helpers/channelClosingHelper')
 
 contract("STKChannelClosing", accounts =>
 {
-    if (typeof web3 !== 'undefined') {
-        web3 = new Web3(web3.currentProvider);
-    } else {
-        // set the provider you want from Web3.providers
-        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-    }
     const userAddress = accounts[0]
     const stackAddress = accounts[1]
     const gas = 1000000; 
