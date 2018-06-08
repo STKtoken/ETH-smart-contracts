@@ -2,11 +2,11 @@ pragma solidity ^0.4.23;
 
 import "./SafeMathLib.sol";
 
-library STKChannelLibrary
+library ETHChannelLibrary
 {
     using SafeMathLib for uint;
 
-    struct STKChannelData
+    struct ETHChannelData
     {
         address userAddress_;
         address signerAddress_;
@@ -28,26 +28,26 @@ library STKChannelLibrary
         _;
     }
 
-    modifier channelAlreadyClosed(STKChannelData storage data)
+    modifier channelAlreadyClosed(ETHChannelData storage data)
     {
         require(data.closedBlock_ > 0);
         _;
     }
 
-    modifier timeoutOver(STKChannelData storage data)
+    modifier timeoutOver(ETHChannelData storage data)
     {
         require(data.closedBlock_ + data.timeout_ < block.number);
         _;
     }
 
-    modifier channelIsOpen(STKChannelData storage data)
+    modifier channelIsOpen(ETHChannelData storage data)
     {
         require(data.closedBlock_ == 0);
         require(data.openedBlock_ > 0);
         _;
     }
 
-    modifier callerIsChannelParticipant(STKChannelData storage data)
+    modifier callerIsChannelParticipant(ETHChannelData storage data)
     {
         require(msg.sender==data.recipientAddress_||msg.sender==data.userAddress_);
         _;
@@ -63,7 +63,7 @@ library STKChannelLibrary
     * @param _s Cryptographic param s derived from the signature.
     */
     function close(
-        STKChannelData storage data,
+        ETHChannelData storage data,
         address _channelAddress,
         uint _nonce,
         uint256 _amount,
@@ -88,7 +88,7 @@ library STKChannelLibrary
     * @notice Function to close the payment channel without a signature.
     * @param data The channel specific data to work on.
     */
-    function closeWithoutSignature(STKChannelData storage data)
+    function closeWithoutSignature(ETHChannelData storage data)
         public
         channelIsOpen(data)
         callerIsChannelParticipant(data)
@@ -107,7 +107,7 @@ library STKChannelLibrary
     * @param _s Cryptographic param s derived from the signature.
     */
     function updateClosedChannel(
-        STKChannelData storage data,
+        ETHChannelData storage data,
         address _channelAddress,
         uint _nonce,
         uint256 _amount,
@@ -132,7 +132,7 @@ library STKChannelLibrary
     * @notice After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.
     * @param data The channel specific data to work on.
     */
-    function settle(STKChannelData storage data, address _channelAddress, bool _returnFunds)
+    function settle(ETHChannelData storage data, address _channelAddress, bool _returnFunds)
         public
         channelAlreadyClosed(data)
         timeoutOver(data)

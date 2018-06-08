@@ -1,11 +1,11 @@
-const STKChannel = artifacts.require('./STKChannel.sol');
+const ETHChannel = artifacts.require('./ETHChannel.sol');
 const ethUtil = require('ethereumjs-util');
 const assertRevert = require('./helpers/assertRevert');
 const zeppelin = require("./helpers/zeppelin")
 const indexes = require('./helpers/channelDataIndexes');
 const closingHelper = require('./helpers/channelClosingHelper')
 
-contract("STKChannelClosing", accounts =>
+contract("ETHChannelClosing", accounts =>
 {
     const userAddress = accounts[0]
     const stackAddress = accounts[1]
@@ -14,7 +14,7 @@ contract("STKChannelClosing", accounts =>
     const signersPk = Buffer.from('ee15654fe40e9666ed0f952747067dec94d23fe30d1b2e3fd2fcd2523d3a5331', 'hex')
     
     it('Should deposit 0.5 eth into the ETH-Payment Channel',async()=> {
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         web3.eth.sendTransaction({from: userAddress, to: channel.address, value: web3.toWei(0.5, "ether"), gasPrice: gas});
         const balance = web3.eth.getBalance(channel.address); 
         
@@ -26,8 +26,8 @@ contract("STKChannelClosing", accounts =>
     {
         const nonce = 1;
         const amount = parseInt(web3.toWei(1, "ether"));
-        const channel = await STKChannel.deployed();
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
+        const channel = await ETHChannel.deployed();
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
         try
         {
             gasRecord += channel.close.estimateGas(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s);
@@ -45,8 +45,8 @@ contract("STKChannelClosing", accounts =>
     {
         const nonce = 1;
         const amount = parseInt(web3.toWei(0,"ether")); 
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
-        const channel = await STKChannel.deployed();
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
+        const channel = await ETHChannel.deployed();
         try
         {
             gasRecord += channel.close.estimateGas(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s)
@@ -64,8 +64,8 @@ contract("STKChannelClosing", accounts =>
     {
         const nonce = 1;
         const amount = parseInt(web3.toWei(2, "ether"));
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,nonChannelPart);
-        const channel = await STKChannel.deployed();
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,nonChannelPart);
+        const channel = await ETHChannel.deployed();
         try
         {
             await channel.close(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s,{from:accounts[3]});
@@ -81,8 +81,8 @@ contract("STKChannelClosing", accounts =>
     {
         const nonce = 1;
         const amount = parseInt(web3.toWei(1, "ether"));
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,nonChannelPart);
-        const channel = await STKChannel.deployed();
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,nonChannelPart);
+        const channel = await ETHChannel.deployed();
         try
         {
             await channel.close(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s)
@@ -98,9 +98,9 @@ contract("STKChannelClosing", accounts =>
     {
         const nonce = 1;
         var amount = parseInt(web3.toWei(0, "ether"));
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
         
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         
         const cost = await  channel.close.estimateGas(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
         console.log('estimated gas cost of closing the channel: ' + cost );
@@ -120,9 +120,9 @@ contract("STKChannelClosing", accounts =>
     {
         const nonce = 2 ;
         const amount = parseInt(web3.toWei(5, "ether"));
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
-        const address = STKChannel.address ;
-        const channel = await STKChannel.deployed();
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
+        const address = ETHChannel.address ;
+        const channel = await ETHChannel.deployed();
         try
         {
             await channel.updateClosedChannel(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s,{from:stackAddress});
@@ -138,8 +138,8 @@ contract("STKChannelClosing", accounts =>
     {
         const nonce = 2 ;
         const amount = parseInt(web3.toWei(0, "ether"));
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
-        const channel = await STKChannel.deployed();
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
+        const channel = await ETHChannel.deployed();
         
         const cost  = await channel.updateClosedChannel.estimateGas(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s,{from:stackAddress});
         console.log('estimated gas cost of contesting the channel after closing: ' + cost );
@@ -155,7 +155,7 @@ contract("STKChannelClosing", accounts =>
     
     it('Should not be able to close the channel after it has already been closed',async()=>
     {
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         try
         {
             await channel.closeWithoutSignature();
@@ -171,9 +171,9 @@ contract("STKChannelClosing", accounts =>
     {
         const nonce = 3;
         var amount = parseInt(web3.toWei(3, "ether")); 
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
         
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         try
         {
             await channel.updateClosedChannel(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s,{from: stackAddress});
@@ -189,8 +189,8 @@ contract("STKChannelClosing", accounts =>
     {
         const nonce = 1 ;
         var amount = parseInt(web3.toWei(3, "ether")); 
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
-        const channel = await STKChannel.deployed();
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
+        const channel = await ETHChannel.deployed();
         try
         {
             await channel.updateClosedChannel(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s,{from: stackAddress});
@@ -206,8 +206,8 @@ contract("STKChannelClosing", accounts =>
     {
         const nonce = 4;
         const amount = parseInt(web3.toWei(0.2, "ether")); 
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
-        const channel = await STKChannel.deployed();
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
+        const channel = await ETHChannel.deployed();
         
         await channel.updateClosedChannel(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s,{from: stackAddress});
         const data  = await channel.channelData_.call();
@@ -220,8 +220,8 @@ contract("STKChannelClosing", accounts =>
 
     it('Should fail when we try to settle the address before the time period is expired',async()=>
     {
-        const address = STKChannel.address ;
-        const channel = await STKChannel.deployed();
+        const address = ETHChannel.address ;
+        const channel = await ETHChannel.deployed();
         try
         {
             await channel.settle();
@@ -236,7 +236,7 @@ contract("STKChannelClosing", accounts =>
     it('Should transfer funds to user once channel has settled',async()=>
     {
         var gasUsed = 0; 
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         const data  = await channel.channelData_.call();
         const blocksToWait = data[indexes.TIMEOUT];
         const returnBalance = true;
@@ -277,7 +277,7 @@ contract("STKChannelClosing", accounts =>
     
     it('Should be able to reset the state of the channel after settling',async()=>
     {
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         const data  = await channel.channelData_.call();
         
         const closingAddress = data[indexes.CLOSING_ADDRESS];
@@ -298,7 +298,7 @@ contract("STKChannelClosing", accounts =>
     
     it('Should be able to have ETH remain in the channel after settling',async()=>
     {
-        const channel = await STKChannel.deployed();
+        const channel = await ETHChannel.deployed();
         
         transaction = {from: userAddress, to: channel.address, value: web3.toWei(0.2, "ether")}
         web3.eth.sendTransaction(transaction); 
@@ -307,7 +307,7 @@ contract("STKChannelClosing", accounts =>
         
         const nonce = 5;
         const amount = parseInt(web3.toWei(0.1, "ether"));
-        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,STKChannel.address,signersPk);
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
         const cost = await  channel.close.estimateGas(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
         await channel.close(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
         const data  = await channel.channelData_.call();
