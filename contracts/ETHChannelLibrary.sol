@@ -33,7 +33,7 @@ library ETHChannelLibrary
 
     modifier timeoutOver(ETHChannelData storage data)
     {
-        require(data.closedBlock_ + 10 < block.number);
+        require(data.closedBlock_ + 2 < block.number);
         _;
     }
 

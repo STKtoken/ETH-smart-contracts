@@ -18,7 +18,7 @@ module.exports = function(deployer, network, accounts)
         {
             return deployer.link(ETHChannelLibrary,ETHChannel).then(function()
             {
-              return deployer.deploy(ETHChannel, web3.eth.accounts[0], web3.eth.accounts[2], 10, {from: web3.eth.accounts[1]}).then(function(){
+              return deployer.deploy(ETHChannel, web3.eth.accounts[0], web3.eth.accounts[2], {from: web3.eth.accounts[1]}).then(function(){
                   fs.writeFile(addressFile, JSON.stringify(file), function (err) {
                   file.ETHChannelAddress = ETHChannel.address;
                   if (err) return console.log(err);

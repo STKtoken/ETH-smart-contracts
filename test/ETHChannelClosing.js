@@ -1,7 +1,6 @@
 const ETHChannel = artifacts.require('./ETHChannel.sol');
 const ethUtil = require('ethereumjs-util');
 const assertRevert = require('./helpers/assertRevert');
-const zeppelin = require("./helpers/zeppelin")
 const indexes = require('./helpers/channelDataIndexes');
 const closingHelper = require('./helpers/channelClosingHelper')
 
@@ -9,6 +8,7 @@ contract("ETHChannelClosing", accounts =>
 {
     const userAddress = accounts[0]
     const stackAddress = accounts[1]
+    const blocksToWait = 2; 
     const gas = 1000000; 
     const nonChannelPart = Buffer.from('c88b703fb08cbea894b6aeff5a544fb92e78a18e19814cd85da83b71f772aa6c', 'hex')
     const signersPk = Buffer.from('ee15654fe40e9666ed0f952747067dec94d23fe30d1b2e3fd2fcd2523d3a5331', 'hex')
@@ -231,7 +231,6 @@ contract("ETHChannelClosing", accounts =>
         var gasUsed = 0; 
         const channel = await ETHChannel.deployed();
         const data  = await channel.channelData_.call();
-        const blocksToWait = 10;
         const returnBalance = true;
         console.log('waiting for '+ blocksToWait.valueOf() + ' blocks');
         
@@ -301,7 +300,6 @@ contract("ETHChannelClosing", accounts =>
         await channel.close(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
         const data  = await channel.channelData_.call();
         
-        const blocksToWait = 10;
         const returnBalance = false;
         console.log('waiting for '+ blocksToWait.valueOf() + ' blocks');
         
