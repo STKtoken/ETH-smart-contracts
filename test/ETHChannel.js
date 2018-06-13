@@ -25,16 +25,7 @@ contract("ETHChannel",(accounts,done)=>
         
         assert.equal(address.toString(),accounts[1],'accounts are not equal');
     })
-    
-    it('Should have Channel expiry time as 10',async() =>
-    {
-        const channel = await ETHChannel.deployed();
-        const data  = await channel.channelData_.call();
-        const timeout = data[indexes.TIMEOUT];
-        
-        assert.equal(timeout.valueOf(),10,'values are not equal');
-    });
-    
+
     it('Should Deposit 3 eth to the eth-channel',async() =>
     {
         const channel = await ETHChannel.deployed();

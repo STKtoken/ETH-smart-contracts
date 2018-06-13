@@ -32,9 +32,7 @@ contract ETHChannel
         channelData_.userAddress_ = _from;
         channelData_.signerAddress_ = _addressOfSigner;
         channelData_.recipientAddress_ = msg.sender;
-        channelData_.timeout_ = _expiryNumberOfBlocks;
-        channelData_.openedBlock_ = block.number;
-        emit LogChannelOpened(channelData_.userAddress_, channelData_.recipientAddress_, channelData_.openedBlock_);
+        emit LogChannelOpened(channelData_.userAddress_, channelData_.recipientAddress_, block.number);
     }
 
     /**
