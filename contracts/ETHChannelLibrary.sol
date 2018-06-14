@@ -11,10 +11,7 @@ library ETHChannelLibrary
         address userAddress_;
         address signerAddress_;
         address recipientAddress_;
-        address closingAddress_;
-        uint timeout_;
         uint256 owingRecipient;
-        uint openedBlock_;
         uint closedBlock_;
         uint closedNonce_;
     }
@@ -36,14 +33,13 @@ library ETHChannelLibrary
 
     modifier timeoutOver(ETHChannelData storage data)
     {
-        require(data.closedBlock_ + data.timeout_ < block.number);
+        require(data.closedBlock_ + 2 < block.number);
         _;
     }
 
     modifier channelIsOpen(ETHChannelData storage data)
     {
         require(data.closedBlock_ == 0);
-        require(data.openedBlock_ > 0);
         _;
     }
 
@@ -81,7 +77,6 @@ library ETHChannelLibrary
         data.owingRecipient = _amount;
         data.closedNonce_ = _nonce;
         data.closedBlock_ = block.number;
-        data.closingAddress_ = msg.sender;
     }
 
     /**
@@ -94,7 +89,6 @@ library ETHChannelLibrary
         callerIsChannelParticipant(data)
     {
         data.closedBlock_ = block.number;
-        data.closingAddress_ = msg.sender;
     }
 
     /**
@@ -142,9 +136,6 @@ library ETHChannelLibrary
         uint256 returnToUserAmount = address(_channelAddress).balance.minus(data.owingRecipient);
         uint256 owedAmount = data.owingRecipient;
         data.owingRecipient = 0;
-
-        data.closingAddress_ = 0x0000000000000000000000000000000000000000;
-        data.openedBlock_ = block.number;
         data.closedBlock_ = 0;
         data.closedNonce_ = 0;
 
@@ -176,6 +167,6 @@ library ETHChannelLibrary
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         bytes32 msgHash = keccak256(this,_nonce,_amount);
         bytes32 prefixedHash = keccak256(prefix, msgHash);
-        return ecrecover(prefixedHash, v, r, s);
+        return ecrecover(prefixedHash, uint8(v), r, s);
     }
 }

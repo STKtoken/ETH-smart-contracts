@@ -1,7 +1,6 @@
 const ETHChannel = artifacts.require('./ETHChannel.sol');
 const ethUtil = require('ethereumjs-util');
 const assertRevert = require('./helpers/assertRevert');
-const zeppelin = require("./helpers/zeppelin")
 const indexes = require('./helpers/channelDataIndexes');
 const closingHelper = require('./helpers/channelClosingHelper')
 
@@ -9,6 +8,7 @@ contract("ETHChannelClosing", accounts =>
 {
     const userAddress = accounts[0]
     const stackAddress = accounts[1]
+    const blocksToWait = 2; 
     const gas = 1000000; 
     const nonChannelPart = Buffer.from('c88b703fb08cbea894b6aeff5a544fb92e78a18e19814cd85da83b71f772aa6c', 'hex')
     const signersPk = Buffer.from('ee15654fe40e9666ed0f952747067dec94d23fe30d1b2e3fd2fcd2523d3a5331', 'hex')
@@ -20,7 +20,6 @@ contract("ETHChannelClosing", accounts =>
         
         assert.equal(balance,web3.toWei(0.5, "ether"),'the deposited values are not equal');
     })
-
     
     it('Should fail when user tries to  close the channel with a valid signature but amount is above the deposited amount',async()=>
     {
@@ -30,8 +29,6 @@ contract("ETHChannelClosing", accounts =>
         const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
         try
         {
-            gasRecord += channel.close.estimateGas(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s);
-
             await channel.close(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s)
             assert.fail('The amount should have caused an exception to be thrown');
         }
@@ -49,8 +46,6 @@ contract("ETHChannelClosing", accounts =>
         const channel = await ETHChannel.deployed();
         try
         {
-            gasRecord += channel.close.estimateGas(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s)
-            
             await channel.close(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s)
             assert.fail('The signature should have caused an exception to be thrown');
         }
@@ -110,10 +105,8 @@ contract("ETHChannelClosing", accounts =>
         const data  = await channel.channelData_.call();
 
         const block = data[indexes.CLOSED_BLOCK];
-        const address = data[indexes.CLOSING_ADDRESS];
 
         assert.isAbove(block.valueOf(),0,'The closed block should not be zero or below')
-        assert.equal(address, stackAddress,'the closing address should be set if the channel has been closed');     
     })
     
     it('Should fail when Channel recipient contests the closing of the channel but the amount is above the deposited amount',async()=>
@@ -238,7 +231,6 @@ contract("ETHChannelClosing", accounts =>
         var gasUsed = 0; 
         const channel = await ETHChannel.deployed();
         const data  = await channel.channelData_.call();
-        const blocksToWait = data[indexes.TIMEOUT];
         const returnBalance = true;
         console.log('waiting for '+ blocksToWait.valueOf() + ' blocks');
         
@@ -280,17 +272,13 @@ contract("ETHChannelClosing", accounts =>
         const channel = await ETHChannel.deployed();
         const data  = await channel.channelData_.call();
         
-        const closingAddress = data[indexes.CLOSING_ADDRESS];
         const amountOwed = data[indexes.AMOUNT_OWED];
-        const openedBlock = data[indexes.OPENED_BLOCK];
         const closedBlock = data[indexes.CLOSED_BLOCK];
         const closedNounce = data[indexes.CLOSED_NONCE];
         
         const currentBlockNumber = web3.eth.blockNumber;
         
-        assert.equal(closingAddress.toString(),'0x0000000000000000000000000000000000000000','closing address are not equal');
         assert.equal(amountOwed.valueOf(),0,'The amount owned should be zero')
-        assert.equal(openedBlock.valueOf(),currentBlockNumber,'opened block are not equal');
         assert.equal(closedBlock.valueOf(),0,'The closed block should be zero')
         assert.equal(closedNounce.valueOf(),0,'The closed nounce should be zero')
         
@@ -312,7 +300,6 @@ contract("ETHChannelClosing", accounts =>
         await channel.close(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
         const data  = await channel.channelData_.call();
         
-        const blocksToWait = data[indexes.TIMEOUT];
         const returnBalance = false;
         console.log('waiting for '+ blocksToWait.valueOf() + ' blocks');
         

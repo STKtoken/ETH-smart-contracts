@@ -21,20 +21,16 @@ contract ETHChannel
      * @dev Contract constructor
      * @param _from The user address in the contract.
      * @param _addressOfSigner The signer address in the contract.
-     * @param _expiryNumberOfBlocks The time in blocks of waiting after channel closing after which it can be settled.
      */
     constructor (
         address _from,
-        address _addressOfSigner,
-        uint _expiryNumberOfBlocks)
+        address _addressOfSigner)
         public
     {
         channelData_.userAddress_ = _from;
         channelData_.signerAddress_ = _addressOfSigner;
         channelData_.recipientAddress_ = msg.sender;
-        channelData_.timeout_ = _expiryNumberOfBlocks;
-        channelData_.openedBlock_ = block.number;
-        emit LogChannelOpened(channelData_.userAddress_, channelData_.recipientAddress_, channelData_.openedBlock_);
+        emit LogChannelOpened(channelData_.userAddress_, channelData_.recipientAddress_, block.number);
     }
 
     /**
