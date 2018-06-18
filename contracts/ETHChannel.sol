@@ -42,6 +42,7 @@ contract ETHChannel
     * @param _s Cryptographic param s derived from the signature.
     */
     function close(
+        bool _refundAmount,
         uint _nonce,
         uint256 _amount,
         uint8 _v,
@@ -49,7 +50,7 @@ contract ETHChannel
         bytes32 _s)
         external
     {
-        channelData_.close(address(this), _nonce, _amount, _v,_r,_s);
+        channelData_.close(address(this), _refundAmount, _nonce, _amount, _v,_r,_s);
         emit LogChannelClosed(block.number, msg.sender, _amount);
     }
 
@@ -86,24 +87,19 @@ contract ETHChannel
     /**
     * @notice After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.
     */
-    function settle(bool _returnBalance)
+    function settle()
         external
     {
-        channelData_.settle(address(this), _returnBalance);
+        channelData_.settle(address(this));
     }
 
-    function deposit(uint256 amountToDeposit) public payable 
-    { 
-        require(amountToDeposit > 0 ); 
+    function getBalance () public view returns (uint balance)
+    {
+        return address(this).balance;
     }
 
-    function getBalance () public view returns (uint balance)  
-    { 
-        return address(this).balance; 
-    }
-
-    //Fallback function for user to send funds 
-    function() public payable 
+    //Fallback function for user to send funds
+    function() public payable
     {
     }
 

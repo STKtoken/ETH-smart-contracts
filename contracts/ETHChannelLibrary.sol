@@ -14,6 +14,7 @@ library ETHChannelLibrary
         uint256 owingRecipient;
         uint closedBlock_;
         uint closedNonce_;
+        bool returnFunds_; 
     }
 
     event LogChannelSettled(uint blockNumber, address user);
@@ -61,6 +62,7 @@ library ETHChannelLibrary
     function close(
         ETHChannelData storage data,
         address _channelAddress,
+        bool _returnFunds,
         uint _nonce,
         uint256 _amount,
         uint8 _v,
@@ -76,6 +78,7 @@ library ETHChannelLibrary
         require(signerAddress!=msg.sender);
         data.owingRecipient = _amount;
         data.closedNonce_ = _nonce;
+        data.returnFunds_ = _returnFunds;         
         data.closedBlock_ = block.number;
     }
 
@@ -126,7 +129,7 @@ library ETHChannelLibrary
     * @notice After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.
     * @param data The channel specific data to work on.
     */
-    function settle(ETHChannelData storage data, address _channelAddress, bool _returnFunds)
+    function settle(ETHChannelData storage data, address _channelAddress)
         public
         channelAlreadyClosed(data)
         timeoutOver(data)
@@ -144,13 +147,14 @@ library ETHChannelLibrary
             address(data.recipientAddress_).transfer(owedAmount);
         }
 
-        if(returnToUserAmount > 0 && _returnFunds)
+        if(returnToUserAmount > 0 && data.returnFunds_)
         {
             address(data.userAddress_).transfer(returnToUserAmount);
         }
 
         emit LogChannelSettled(block.number, data.userAddress_);
     }
+
 
     /**
     * @notice After the timeout of the channel after closing has passed, can be called by either participant to withdraw funds.

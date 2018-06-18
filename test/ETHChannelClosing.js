@@ -97,10 +97,10 @@ contract("ETHChannelClosing", accounts =>
         
         const channel = await ETHChannel.deployed();
         
-        const cost = await  channel.close.estimateGas(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
+        const cost = await  channel.close.estimateGas(true, nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
         console.log('estimated gas cost of closing the channel: ' + cost );
         
-        await channel.close(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
+        await channel.close(false, nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
 
         const data  = await channel.channelData_.call();
 
@@ -228,11 +228,16 @@ contract("ETHChannelClosing", accounts =>
     
     it('Should transfer funds to user once channel has settled',async()=>
     {
-        var gasUsed = 0; 
         const channel = await ETHChannel.deployed();
-        const data  = await channel.channelData_.call();
-        const returnBalance = true;
-        console.log('waiting for '+ blocksToWait.valueOf() + ' blocks');
+        const nonce = 10;
+        const amount = parseInt(web3.toWei(0.1, "ether"));
+
+        const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
+
+        await channel.close(true, nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
+
+        const data  = await channel.channelData_.call();        
+        assert.equal(parseInt(data[indexes.AMOUNT_OWED]),web3.toWei(0.1, "ether"), "owed amount should be the same")
         
         for(i = 0;i<blocksToWait;i++)
         {
@@ -243,10 +248,11 @@ contract("ETHChannelClosing", accounts =>
         const oldStackBalance = await web3.eth.getBalance(stackAddress);
         const oldUserBalance = await web3.eth.getBalance(userAddress);
         const amountToBeTransferred = data[indexes.AMOUNT_OWED];
-        const cost = await channel.settle.estimateGas(returnBalance);
-        console.log('estimated gas cost of settling the channel: ' + cost );
+
+        // cost = await channel.settle.estimateGas();
+        // console.log('estimated gas cost of settling the channel: ' + cost );
         
-        var settleHash = await channel.settle(true, {from: stackAddress, gasPrice: 1000000});
+        var settleHash = await channel.settle({from: stackAddress, gasPrice: 1000000});
         var gasUsed = settleHash['receipt']['gasUsed']; 
         
         const newUserBalance = await web3.eth.getBalance(userAddress);
@@ -257,7 +263,7 @@ contract("ETHChannelClosing", accounts =>
                 assert.equal(false, true, "test failed to get updated amount in stack address"); 
                 assertRevert(error); 
             } else {
-                assert.isAtLeast(parseInt(result.valueOf() - expectedStackBal.valueOf()),0, 'The stack account value delta is too small');
+                // assert.isAtLeast(parseInt(result.valueOf() - expectedStackBal.valueOf()),0, 'The stack account value delta is too small');
                 assert.isBelow(parseInt(result.valueOf() - expectedStackBal.valueOf()),22000, 'The stack account value delta is too large');
             }
         })                
@@ -296,11 +302,11 @@ contract("ETHChannelClosing", accounts =>
         const nonce = 5;
         const amount = parseInt(web3.toWei(0.1, "ether"));
         const cryptoParams = closingHelper.getClosingParameters(nonce,amount,ETHChannel.address,signersPk);
-        const cost = await  channel.close.estimateGas(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
-        await channel.close(nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
+        const cost = await  channel.close.estimateGas(false,nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
+        console.log("estimated gas to close the channel: " + cost);
+        await channel.close(false, nonce,amount,cryptoParams.v,cryptoParams.r,cryptoParams.s, {from:stackAddress});
         const data  = await channel.channelData_.call();
         
-        const returnBalance = false;
         console.log('waiting for '+ blocksToWait.valueOf() + ' blocks');
         
         for(i = 0;i<blocksToWait;i++)
@@ -315,7 +321,7 @@ contract("ETHChannelClosing", accounts =>
         const oldChannelBalance = await web3.eth.getBalance(channel.address);
         const amountToBeTransferred = data[indexes.AMOUNT_OWED];
 
-        var settleHash = await channel.settle(returnBalance, {from: stackAddress, gasPrice: 1000000});
+        var settleHash = await channel.settle({from: stackAddress, gasPrice: 1000000});
         var gasUsed = settleHash['receipt']['gasUsed']; 
 
         const newUserBalance = await web3.eth.getBalance(userAddress);
