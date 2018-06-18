@@ -78,8 +78,8 @@ library ETHChannelLibrary
         require(signerAddress!=msg.sender);
         data.owingRecipient = _amount;
         data.closedNonce_ = _nonce;
+        data.returnFunds_ = _returnFunds;         
         data.closedBlock_ = block.number;
-        data.returnFunds_ = _returnFunds; 
     }
 
     /**
