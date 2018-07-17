@@ -2,7 +2,7 @@ pragma solidity ^0.4.23;
 
 import "./SafeMathLib.sol";
 
-library ETHChannelLibrary
+library ETHLibrary
 {
     using SafeMathLib for uint;
 
@@ -12,6 +12,7 @@ library ETHChannelLibrary
         address signerAddress_;
         address recipientAddress_;
         uint256 owingRecipient;
+        uint timeout_; 
         uint closedBlock_;
         uint closedNonce_;
         bool returnFunds_; 
@@ -34,7 +35,7 @@ library ETHChannelLibrary
 
     modifier timeoutOver(ETHChannelData storage data)
     {
-        require(data.closedBlock_ + 2 < block.number);
+        require(data.closedBlock_ + data.timeout_ < block.number);
         _;
     }
 

@@ -1,17 +1,17 @@
 pragma solidity ^0.4.23;
 
-import "./ETHChannelLibrary.sol";
+import "./ETHLibrary.sol";
 /**
 Payment Channel between two parties that allows multiple deposits.
 Once closed, there is a contest period which allows state updates.
 */
 contract ETHChannel
 {
-    using ETHChannelLibrary for ETHChannelLibrary.ETHChannelData;
+    using ETHLibrary for ETHLibrary.ETHChannelData;
     /**
      * Storage variables
      */
-    ETHChannelLibrary.ETHChannelData public channelData_;
+    ETHLibrary.ETHChannelData public channelData_;
 
     event LogChannelOpened(address from, address to, uint blockNumber);
     event LogChannelClosed(uint blockNumber, address closer, uint256 amount);
@@ -24,12 +24,14 @@ contract ETHChannel
      */
     constructor (
         address _from,
-        address _addressOfSigner)
+        address _addressOfSigner, 
+        uint _timeout)
         public
     {
         channelData_.userAddress_ = _from;
         channelData_.signerAddress_ = _addressOfSigner;
         channelData_.recipientAddress_ = msg.sender;
+        channelData_.timeout_ = _timeout; 
         emit LogChannelOpened(channelData_.userAddress_, channelData_.recipientAddress_, block.number);
     }
 
